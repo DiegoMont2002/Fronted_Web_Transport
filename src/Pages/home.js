@@ -14,7 +14,7 @@ const Home = () => {
     <SearchBar />
    </div>
 
-   <div className="flex-center">
+   <div className="flex">
     <Formulario />
     </div>
    </>  

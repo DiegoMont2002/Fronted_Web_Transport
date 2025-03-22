@@ -1,4 +1,5 @@
 import React from "react";
+import './formulario.css';
 
 const Formulario = () => {
     return (
@@ -22,12 +23,17 @@ const Formulario = () => {
                       </div>
                       </div>
 
+                      <div className="row">
+                      <div className="col-md-6 mb-4">
                       <div className="form-outline mb-2">
                         <label>Destino:</label>
                         <input type="text" className="form-control" placeholder="" />
                       </div>
+                      </div>
+                      </div>
 
                       </form>
+                      <hr />
                       </div>
                       </div>
     );
