@@ -1,5 +1,5 @@
 /* En tu archivo CSS */
-.form-container {
-    margin-top: -700px;    /* Mueve el formulario hacia abajo */
-    margin-left: 250px;  /* Mueve el formulario hacia la derecha */
+.form-container-home {
+    margin-top: -650px;    /* Mueve el formulario hacia abajo */
+    margin-left: 350px;  /* Mueve el formulario hacia la derecha */
 }

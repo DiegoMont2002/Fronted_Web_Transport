@@ -1,4 +1,4 @@
-import React from "react";
+/*import React from "react";
 import './formulario.css';
 
 const Formulario = () => {
@@ -38,4 +38,4 @@ const Formulario = () => {
                       </div>
     );
 }
-export default Formulario;
+export default Formulario;*/
