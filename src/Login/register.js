@@ -1,68 +1,171 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Carousel from './carousel';
-import './carousel.css';
+import { FiUser, FiMail, FiLock, FiLogIn, FiArrowLeft } from 'react-icons/fi';
+import './register.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Nombre completo es requerido';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email no válido';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Contraseña es requerida';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setIsSubmitting(true);
+      // Simular registro
+      setTimeout(() => {
+        console.log('Registro exitoso:', formData);
+        setIsSubmitting(false);
+        navigate('/login');
+      }, 1500);
+    }
+  };
 
   return (
-    <section className="login-section">
-      <div className="container py-5 h-100">
-        <div className="row d-flex justify-content-center align-items-center h-100">
-          <div className="col-xl-10">
-            <div className="card rounded-3 text-black">
-              <div className="row g-0"> 
-                
-                {/* 📌 Sección del Formulario */}
-                <div className="col-lg-6 form-container">
-                  <div className="card-body p-md-5 mx-md-4">
-                    <div className="text-center">
-                      <h4 className="mt-1 mb-5 pb-1">"Ruta Maya"</h4>
-                    </div>
-
-                    <form>
-                     
-                      <div className="form-outline mb-4">
-                        <label>Nombre Completo</label>
-                        <input type="text" className="form-control" placeholder="Nombre Completo" />
-                      </div>
-
-                      <div className="form-outline mb-4">
-                        <label>Email address</label>
-                        <input type="email" className="form-control" placeholder="Email address" />
-                      </div>
-
-                      <div className="form-outline mb-4">
-                        <label>Password</label>
-                        <input type="password" className="form-control" placeholder="Password" />
-                      </div>
-
-                      <div className="text-center pt-1 mb-5 pb-1">
-                        <button type="button" className="btn btn-success btn-rounded" onClick={() => navigate('/login')}>Iniciar Sesión</button>
-                      </div>
-
-                      <div className="d-flex align-items-center justify-content-center pb-4">
-                        <button type="button" className="btn btn-success btn-rounded" onClick={() => navigate('/register')}>
-                          Registrarse
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-
-                {/* 📌 Sección del Carrusel (Ocupará TODO el espacio disponible de la mitad derecha) */}
-                <div className="col-lg-6 carousel-container">
-                  <Carousel />
-                </div>
-
-              </div>
+    <div className="register-container">
+      <div className="register-grid">
+        {/* Sección del Formulario */}
+        <div className="register-form-container">
+          <div className="register-form-wrapper">
+            <button 
+              className="back-button"
+              onClick={() => navigate('/login')}
+            >
+              <FiArrowLeft className="back-icon" />
+              Volver al login
+            </button>
+            
+            <div className="logo-container">
+              <h2 className="logo-text">Ruta Maya</h2>
+              <p className="welcome-text">Crea tu cuenta</p>
             </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="input-group">
+                <FiUser className="input-icon" />
+                <input
+                  type="text"
+                  name="fullName"
+                  className={`form-input ${errors.fullName ? 'error' : ''}`}
+                  placeholder="Nombre completo"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
+                {errors.fullName && <span className="error-message">{errors.fullName}</span>}
+              </div>
+
+              <div className="input-group">
+                <FiMail className="input-icon" />
+                <input
+                  type="email"
+                  name="email"
+                  className={`form-input ${errors.email ? 'error' : ''}`}
+                  placeholder="Correo electrónico"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+                {errors.email && <span className="error-message">{errors.email}</span>}
+              </div>
+
+              <div className="input-group">
+                <FiLock className="input-icon" />
+                <input
+                  type="password"
+                  name="password"
+                  className={`form-input ${errors.password ? 'error' : ''}`}
+                  placeholder="Contraseña"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                {errors.password && <span className="error-message">{errors.password}</span>}
+              </div>
+
+              <div className="input-group">
+                <FiLock className="input-icon" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
+                  placeholder="Confirmar contraseña"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
+
+              <div className="button-group">
+                <button
+                  type="submit"
+                  className="register-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Registrando...' : 'Registrarse'}
+                </button>
+              </div>
+
+              <div className="login-redirect">
+                ¿Ya tienes una cuenta?{' '}
+                <button 
+                  type="button" 
+                  className="login-link"
+                  onClick={() => navigate('/login')}
+                >
+                  Inicia sesión
+                </button>
+              </div>
+            </form>
           </div>
         </div>
+
+        {/* Sección del Carrusel */}
+        <div className="carousel-section">
+          <Carousel />
+        </div>
       </div>
-    </section>
+    </div>
   );
-}
+};
 
 export default Register;
