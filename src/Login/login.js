@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../Services/api';
 import { FiLogIn, FiUserPlus, FiMail, FiLock } from 'react-icons/fi';
 import './login.css';
 import Carousel from './carousel';
