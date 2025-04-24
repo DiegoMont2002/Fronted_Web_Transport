@@ -7,20 +7,12 @@ import Register from '../Login/register';
 import Home from '../Pages/home';
 import AdminHome from '../Pages/AdminHome'; // Componente que creamos anteriormente
 import LoadingSpinner from '../Components/LoadingSpinner';
+import RegisterAdmin from '../Login/RegisterAdmin'; // Componente que creamos anteriormente
 
 // Componente de ruta protegida
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-
-  /*const [authCheckend, setAuthCheckend] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!loading) {
-      const timer = setTimeout(() => setAuthCheckend(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);*/
 
   if (loading) {
     return <LoadingSpinner fullScream />
@@ -30,7 +22,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
+  if (requiredRole && !requiredRole.includes(user.role)) {
     return <Navigate to={user.role === 'admin' ? '/admin/home' : '/home'}
     replace />;
   }
@@ -54,8 +46,14 @@ function Rutas() {
       
       {/* Ruta especial para admin */}
       <Route path="/admin/home" element={
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requiredRole={['admin', 'superadmin']}>
           <AdminHome />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin/register" element={
+        <ProtectedRoute requiredRole="admin">
+          <RegisterAdmin />
         </ProtectedRoute>
       } />
       
