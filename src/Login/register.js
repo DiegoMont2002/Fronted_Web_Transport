@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Carousel from './carousel';
-import { FiUser, FiMail, FiLock, FiLogIn, FiArrowLeft } from 'react-icons/fi';
+import api from '../Services/api';
+import { FiMail, FiLock, FiArrowLeft } from 'react-icons/fi';
 import './register.css';
+import Carousel from './carousel';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -20,14 +21,14 @@ const Register = () => {
       ...prev,
       [name]: value
     }));
+    // Limpiar error cuando el usuario escribe
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Nombre completo es requerido';
-    }
     
     if (!formData.email.trim()) {
       newErrors.email = 'Email es requerido';
@@ -49,23 +50,35 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      setIsSubmitting(true);
-      // Simular registro
-      setTimeout(() => {
-        console.log('Registro exitoso:', formData);
-        setIsSubmitting(false);
-        navigate('/login');
-      }, 1500);
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await api.post('/auth/register', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      // Opcional: Mostrar mensaje de éxito
+      alert('Registro exitoso. Por favor inicia sesión.');
+      navigate('/login');
+      
+    } catch (err) {
+      setErrors({
+        server: err.response?.data?.message || 
+               'Error al registrar. Por favor intenta nuevamente.'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="register-container">
       <div className="register-grid">
-        {/* Sección del Formulario */}
         <div className="register-form-container">
           <div className="register-form-wrapper">
             <button 
@@ -81,20 +94,11 @@ const Register = () => {
               <p className="welcome-text">Crea tu cuenta</p>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="input-group">
-                <FiUser className="input-icon" />
-                <input
-                  type="text"
-                  name="fullName"
-                  className={`form-input ${errors.fullName ? 'error' : ''}`}
-                  placeholder="Nombre completo"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                />
-                {errors.fullName && <span className="error-message">{errors.fullName}</span>}
-              </div>
+            {errors.server && (
+              <div className="error-message mb-3">{errors.server}</div>
+            )}
 
+            <form onSubmit={handleSubmit}>
               <div className="input-group">
                 <FiMail className="input-icon" />
                 <input
@@ -104,8 +108,11 @@ const Register = () => {
                   placeholder="Correo electrónico"
                   value={formData.email}
                   onChange={handleChange}
+                  autoComplete="email"
                 />
-                {errors.email && <span className="error-message">{errors.email}</span>}
+                {errors.email && (
+                  <span className="error-message">{errors.email}</span>
+                )}
               </div>
 
               <div className="input-group">
@@ -114,11 +121,14 @@ const Register = () => {
                   type="password"
                   name="password"
                   className={`form-input ${errors.password ? 'error' : ''}`}
-                  placeholder="Contraseña"
+                  placeholder="Contraseña (mínimo 6 caracteres)"
                   value={formData.password}
                   onChange={handleChange}
+                  autoComplete="new-password"
                 />
-                {errors.password && <span className="error-message">{errors.password}</span>}
+                {errors.password && (
+                  <span className="error-message">{errors.password}</span>
+                )}
               </div>
 
               <div className="input-group">
@@ -130,8 +140,11 @@ const Register = () => {
                   placeholder="Confirmar contraseña"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  autoComplete="new-password"
                 />
-                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+                {errors.confirmPassword && (
+                  <span className="error-message">{errors.confirmPassword}</span>
+                )}
               </div>
 
               <div className="button-group">
@@ -140,7 +153,14 @@ const Register = () => {
                   className="register-button"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Registrando...' : 'Registrarse'}
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Registrando...
+                    </>
+                  ) : (
+                    'Registrarse'
+                  )}
                 </button>
               </div>
 
@@ -158,7 +178,6 @@ const Register = () => {
           </div>
         </div>
 
-        {/* Sección del Carrusel */}
         <div className="carousel-section">
           <Carousel />
         </div>

@@ -13,7 +13,7 @@ const Home = () => {
     children: 0,
     seniors: 0
   });
-
+ 
   const handleSearch = () => {
     console.log({
       from,

@@ -1,18 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../Services/api'; // Asegúrate de tener este archivo configurado
+import { useAuth } from '../context/AuthContext';
+import api from '../Services/api';
 import { FiLogIn, FiUserPlus, FiMail, FiLock } from 'react-icons/fi';
 import './login.css';
 import Carousel from './carousel';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated, loading: authLoading } = useAuth(); // *** Usamos authLoading del contexto
   const [credentials, setCredentials] = useState({
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false); // *** Separamos loading del formulario
   const [error, setError] = useState('');
+
+  // *** Efecto mejorado para redirección
+  /*useEffect(() => {
+    if (isAuthenticated) {
+
+      const userData = localStorage.getItem('user');
+
+      if (userData) {
+        const user = JSON.parse(userData);
+        const redirectPath = user?.role === 'admin' ? '/admin/home' : '/home';
+        navigate(redirectPath, { replace: true });
+      }
+    }
+  }, [isAuthenticated, navigate]);*/
+
+      /*const user = JSON.parse(localStorage.getItem('user'));
+      const redirectPath = user?.role === 'admin' ? '/admin/home' : '/home';
+      navigate(redirectPath, { replace: true });
+      
+      // *** Usamos setTimeout para evitar conflicto con actualización de estado
+     /* const redirectTimer = setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 50);
+      
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isAuthenticated, navigate, user?.role]);*/
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,31 +49,54 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
+    setError(''); // *** Limpia errores al escribir
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setFormLoading(true);
     setError('');
-
+  
     try {
-      const response = await api.post('/auth/login', credentials);
-      
-      // Guarda el token en localStorage 
-      localStorage.setItem('token', response.data.token);
-      
-      // Redirige al dashboard/home
-      navigate('/home');
-      
+      await login(credentials); 
     } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        err.message || 
-        'Error al conectar con el servidor'
-      );
-      console.error('Detalles del error:', err.response?.data);  
+      setError(err.response?.data?.error || 'Credenciales inválidas');
+    } finally {
+      setFormLoading(false);
     }
   };
+      /*const response = await api.post('/auth/login', credentials);
+      
+      // Validación manual adicional
+      if (!response.data.token) {
+        throw new Error('No se recibió token en la respuesta');
+      }
+  
+      const token = response.data.token.trim(); // Limpieza final
+      
+      if (token.includes(' ')) {
+        throw new Error('El token contiene espacios después de la limpieza');
+      }
+  
+      // Guardado seguro
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+    } catch (err) {
+      console.error('Error detallado:', {
+        message: err.message,
+        token: err.response?.data?.token,
+        rawError: err
+      });
+      
+      setError('Error en el formato del token. Por favor contacta al soporte.');
+      
+      // Limpia credenciales inválidas
+      localStorage.removeItem('token');
+    } finally {
+      setFormLoading(false);
+    }
+  };*/
 
   return (
     <section className="login-container">
@@ -57,7 +109,11 @@ const Login = () => {
               <p className="welcome-text">Bienvenido a tu plataforma de viajes</p>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div className="error-message">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
               <div className="input-group">
@@ -70,6 +126,7 @@ const Login = () => {
                   value={credentials.email}
                   onChange={handleChange}
                   required
+                  disabled={formLoading}
                 />
               </div>
 
@@ -84,6 +141,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   minLength="6"
+                  disabled={formLoading}
                 />
               </div>
 
@@ -91,10 +149,18 @@ const Login = () => {
                 <button 
                   type="submit" 
                   className="login-button"
-                  disabled={loading}
+                  disabled={formLoading || authLoading}
                 >
-                  <FiLogIn className="button-icon" />
-                  {loading ? 'Cargando...' : 'Iniciar Sesión'}
+                  {formLoading ? (
+                    <>
+                      <span className="spinner"></span> Cargando...
+                    </>
+                  ) : (
+                    <>
+                      <FiLogIn className="button-icon" />
+                      Iniciar Sesión
+                    </>
+                  )}
                 </button>
               </div>
 
@@ -106,6 +172,7 @@ const Login = () => {
                 type="button" 
                 className="register-button"
                 onClick={() => navigate('/register')}
+                disabled={formLoading}
               >
                 <FiUserPlus className="button-icon" />
                 Crear una cuenta

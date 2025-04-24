@@ -1,12 +1,14 @@
 import React from "react";
 import './sidebar.css';
+import { useAuth, } from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -21,7 +23,7 @@ const Sidebar = () => {
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
           <button 
-            onClick={() => handleNavigation('/')} 
+            onClick={() => handleLogout('/')} 
             className="nav-link d-flex align-items-center mt-3 sidebar-button"
           >
             <i className="bi bi-house-door me-2"></i>
@@ -30,7 +32,7 @@ const Sidebar = () => {
         </li>
         <li>
           <button 
-            onClick={() => handleNavigation('/rutas')} 
+            onClick={() => handleLogout('/rutas')} 
             className="nav-link d-flex align-items-center mt-3 sidebar-button"
           >
             <i className="bi bi-map me-2"></i>
@@ -39,7 +41,7 @@ const Sidebar = () => {
         </li>
         <li>
           <button 
-            onClick={() => handleNavigation('/metodos-pago')} 
+            onClick={() => handleLogout('/metodos-pago')} 
             className="nav-link d-flex align-items-center mt-3 sidebar-button"
           >
             <i className="bi bi-credit-card me-2"></i>
@@ -48,7 +50,7 @@ const Sidebar = () => {
         </li>
         <li>
           <button 
-            onClick={() => handleNavigation('/acerca-de')} 
+            onClick={() => handleLogout('/acerca-de')} 
             className="nav-link d-flex align-items-center mt-3 sidebar-button"
           >
             <i className="bi bi-info-circle me-2"></i>
@@ -57,7 +59,7 @@ const Sidebar = () => {
         </li>
         <li className="mt-4">
           <button 
-            onClick={() => handleNavigation('/login')} 
+            onClick={() => handleLogout('/login')} 
             className="nav-link d-flex align-items-center mt-3 sidebar-button logout-button"
           >
             <i className="bi bi-box-arrow-right me-2"></i>
@@ -86,23 +88,34 @@ const Sidebar = () => {
         </a>
         <ul className="dropdown-menu dropdown-menu-dark text-small shadow">
           <li>
-            <button className="dropdown-item" onClick={() => handleNavigation('/perfil')}>
+            <button className="dropdown-item" onClick={() => handleLogout('/perfil')}>
               <i className="bi bi-person me-2"></i> Perfil
             </button>
           </li>
           <li>
-            <button className="dropdown-item" onClick={() => handleNavigation('/configuracion')}>
+            <button className="dropdown-item" onClick={() => handleLogout('/configuracion')}>
               <i className="bi bi-gear me-2"></i> Configuración
             </button>
           </li>
           <li><hr className="dropdown-divider" /></li>
           <li>
-            <button className="dropdown-item" onClick={() => handleNavigation('/login')}>
+            <button className="dropdown-item" onClick={() => handleLogout('/login')}>
               <i className="bi bi-box-arrow-right me-2"></i> Cerrar sesión
             </button>
           </li>
         </ul>
       </div>
+    {user?.role === 'admin' && (
+      <li>
+        <button
+          onClick={() => navigate('/admin/home')}
+          className="nav-link d-flex align-items-center mt-3 sidebar-button">
+            <i className="bi bi-speedometer2 me-2"></i>
+            Panel de Administrador
+          </button>
+      </li>
+      )}
+
     </div>
   );
 };
