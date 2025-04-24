@@ -7,16 +7,24 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false); // Estado para verificar si la autenticación ha sido comprobada
   const navigate = useNavigate();
 
   // 1. Función para cargar el usuario desde localStorage
   const loadUser = () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
+
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data', error);
+        localStorage.clear();
+      }
     }
     setLoading(false);
+    setAuthChecked(true);
   };
 
   // 2. Efecto que se ejecuta al inicio
@@ -24,33 +32,32 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
+  // Redirección basada en autenticación
+  useEffect(() => {
+    if (!authChecked || loading) return;
+
+    if (user) {
+      const redirectPath = user.role.includes('admin') 
+        ? '/admin/home' 
+        : '/home';
+      navigate(redirectPath, { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [user, authChecked, loading, navigate]);
+
   // Login modificado
-  console.log('Antes de login');
   const login = async (credentials) => {
-    console.log('Inicinando login');
     try {
       setLoading(true);
       const { data } = await api.post('/auth/login', credentials);
       
      localStorage.setItem('token', data.token);
      localStorage.setItem('user', JSON.stringify(data.user));
-
      setUser(data.user);
-
-     const redirectPath = data.user.role === 'admin' ? '/admin/home' : '/home';
-     navigate(redirectPath, { replace: true });
-
-      console.log('Login exitoso:', data.user);
-
-     return data.user;
+     
     } catch (err) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      console.error('Error en login:', err);
-      setUser(null);
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
