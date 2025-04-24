@@ -5,68 +5,37 @@ import { FiUser, FiMail, FiLock, FiKey } from 'react-icons/fi';
 import './admin.css';
 
 const RegisterAdmin = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({ 
-    fullName: '',
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    adminKey: '' // Clave especial para registro de admins
+    adminKey: ''
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
     try {
-      const response = await api.post('/auth/register-admin', {
-        email: formData.email,
-        password: formData.password,
-        adminKey: formData.adminKey
-      });
-      
-      alert('Administrador registrado exitosamente');
-      if (response.data.user.role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        navigate('/'); // Por si falla la clave pero no da error
-      }
-    } catch (err) {
-      setErrors({
-        adminKey: err.response?.data?.message || 'Clave de admin inválida'
-      });
-    } finally {
-      setIsSubmitting(false);
+      await api.post('/auth/register-admin', formData);
+      alert('Admin registrado!');
+    } catch (error) {
+      alert('Error: ' + error.response?.data?.message);
     }
   };
 
   return (
-    <div className="admin-register-container">
-      <h2>Registro de Administrador</h2>
+    <div className="admin-register">
+      <h2>Registro para Administradores</h2>
       <form onSubmit={handleSubmit}>
-        {/* Campos similares a Register.js pero con adminKey */}
-        <div className="input-group">
-          <FiKey className="input-icon" />
-          <input
-            type="password"
-            name="adminKey"
-            placeholder="Clave de administrador"
+        {/* Campos similares a register.js + campo adminKey */}
+        <div className="form-group">
+          <label>Clave Secreta:</label>
+          <input 
+            type="password" 
             value={formData.adminKey}
-            onChange={handleChange}
+            onChange={(e) => setFormData({...formData, adminKey: e.target.value})}
             required
           />
         </div>
-        
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Registrando...' : 'Registrar Administrador'}
-        </button>
+        <button type="submit">Registrar Admin</button>
       </form>
     </div>
   );
