@@ -1,12 +1,12 @@
 import React from 'react';
-import Sidebar from '../Components/sidebar';
 import SearchBar from '../Components/searchbar';
 import '../Components/formulario.css';
+import SidebarAdmin from '../Components/sidebarAdmin';
 
 const AdminHome = () => {
   return (
     <div className="app-container">
-      <Sidebar />
+      <SidebarAdmin />
       
       <div className="main-content">
         <SearchBar />
