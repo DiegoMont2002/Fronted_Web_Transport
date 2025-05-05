@@ -15,32 +15,6 @@ const Login = () => {
   const [formLoading, setFormLoading] = useState(false); // *** Separamos loading del formulario
   const [error, setError] = useState('');
 
-  // *** Efecto mejorado para redirección
-  /*useEffect(() => {
-    if (isAuthenticated) {
-
-      const userData = localStorage.getItem('user');
-
-      if (userData) {
-        const user = JSON.parse(userData);
-        const redirectPath = user?.role === 'admin' ? '/admin/home' : '/home';
-        navigate(redirectPath, { replace: true });
-      }
-    }
-  }, [isAuthenticated, navigate]);*/
-
-      /*const user = JSON.parse(localStorage.getItem('user'));
-      const redirectPath = user?.role === 'admin' ? '/admin/home' : '/home';
-      navigate(redirectPath, { replace: true });
-      
-      // *** Usamos setTimeout para evitar conflicto con actualización de estado
-     /* const redirectTimer = setTimeout(() => {
-        navigate(redirectPath, { replace: true });
-      }, 50);
-      
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [isAuthenticated, navigate, user?.role]);*/
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,38 +38,17 @@ const Login = () => {
       setFormLoading(false);
     }
   };
-      /*const response = await api.post('/auth/login', credentials);
-      
-      // Validación manual adicional
-      if (!response.data.token) {
-        throw new Error('No se recibió token en la respuesta');
-      }
   
-      const token = response.data.token.trim(); // Limpieza final
-      
-      if (token.includes(' ')) {
-        throw new Error('El token contiene espacios después de la limpieza');
-      }
-  
-      // Guardado seguro
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-    } catch (err) {
-      console.error('Error detallado:', {
-        message: err.message,
-        token: err.response?.data?.token,
-        rawError: err
-      });
-      
-      setError('Error en el formato del token. Por favor contacta al soporte.');
-      
-      // Limpia credenciales inválidas
-      localStorage.removeItem('token');
-    } finally {
-      setFormLoading(false);
-    }
-  };*/
+  const handleRegisterClick = (e) => {
+   // Redirige a la página de registro
+    e.preventDefault();
+    window.history.replaceState({}, '', '/register');
+  window.dispatchEvent(new PopStateEvent('popstate'));
+    /*navigate('/register', {
+      state: { from: 'login' }, // Envía estado de procedencia
+      replace: true // Evita guardar en historial
+    });*/
+  };
 
   return (
     <section className="login-container">
@@ -166,17 +119,18 @@ const Login = () => {
               <div className="divider">
                 <span>o</span>
               </div>
+              </form>
 
               <button 
-                type="button" 
-                className="register-button"
-                onClick={() => navigate('/register')}
-                disabled={formLoading}
-              >
-                <FiUserPlus className="button-icon" />
-                Crear una cuenta
-              </button>
-            </form>
+      type="button" 
+      className="register-button"
+      onClick={handleRegisterClick} // Usa la nueva función
+      disabled={formLoading}
+    >
+      <FiUserPlus className="button-icon" />
+      Crear una cuenta
+    </button>
+
           </div>
         </div>
 
