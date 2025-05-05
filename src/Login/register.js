@@ -4,9 +4,11 @@ import api from '../Services/api';
 import { FiMail, FiLock, FiArrowLeft } from 'react-icons/fi';
 import './register.css';
 import Carousel from './carousel';
+import { useLocation } from 'react-router-dom';
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -57,14 +59,17 @@ const Register = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await api.post('/auth/register', {
+      await api.post('/auth/register', {
         email: formData.email,
         password: formData.password
       });
 
-      // Opcional: Mostrar mensaje de éxito
-      alert('Registro exitoso. Por favor inicia sesión.');
-      navigate('/login');
+      navigate('/login', { 
+        state: { 
+          registeredSuccessfully: true,
+          email: formData.email 
+        }
+      });
       
     } catch (err) {
       setErrors({
@@ -76,18 +81,27 @@ const Register = () => {
     }
   };
 
+  const handleBackClick = (e) => {
+    e.preventDefault();
+    window.history.replaceState({}, '', '/login');
+  window.dispatchEvent(new PopStateEvent('popstate'));
+    /*navigate(location.state?.from || '/login', {
+      replace: true
+    });*/
+  };
+
   return (
     <div className="register-container">
       <div className="register-grid">
         <div className="register-form-container">
           <div className="register-form-wrapper">
-            <button 
-              className="back-button"
-              onClick={() => navigate('/login')}
-            >
-              <FiArrowLeft className="back-icon" />
-              Volver al login
-            </button>
+          <button 
+      className="back-button"
+      onClick={handleBackClick} // Usa la nueva función
+    >
+      <FiArrowLeft className="back-icon" />
+      Volver al login
+    </button>
             
             <div className="logo-container">
               <h2 className="logo-text">Ruta Maya</h2>
